@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JSFiddle csw16hzf</title>
+
+  <style>
+    
+  </style>
+
+  
+</head>
+<body>
+  <!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비상 한국사 기말고사 완벽 대비 퀴즈앱</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
+        body { font-family: 'Pretendard', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <header class="mb-8 text-center">
+            <h1 class="text-2xl font-bold text-slate-900 mb-2">🎯 한국사1 기말고사 대비 퀴즈</h1>
+            <p class="text-sm text-slate-500">교과서 p.96~155 핵심 단원 약점 보완</p>
+            
+            <div class="mt-6 bg-white p-4 rounded-xl shadow-xs border border-slate-100">
+                <div class="flex justify-between text-xs font-semibold text-slate-600 mb-2">
+                    <span id="progress-text">진행도: 0 / 10</span>
+                    <span id="score-text">맞힌 개수: 0</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </header>
+
+        <main id="quiz-card" class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 min-h-[400px] flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <span id="question-number" class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Question 1</span>
+                    <button id="hint-btn" onclick="toggleHint()" class="text-xs text-amber-600 bg-amber-50 hover:bg-amber-100 font-medium px-2.5 py-1 rounded-md transition">💡 힌트 보기</button>
+                </div>
+
+                <div id="hint-box" class="hidden mb-4 p-3 bg-amber-50/50 border border-amber-100 rounded-xl text-sm text-amber-800 animate-fade-in"></div>
+
+                <h2 id="question-text" class="text-lg font-bold text-slate-950 mb-6 leading-relaxed">질문이 로딩 중입니다...</h2>
+
+                <div id="options-container" class="space-y-3">
+                    </div>
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-slate-100">
+                <div id="feedback-area" class="hidden mb-4 p-4 rounded-xl text-sm leading-relaxed">
+                    </div>
+                <button id="next-btn" onclick="nextQuestion()" class="hidden w-full bg-slate-900 text-white font-semibold py-3.5 rounded-xl hover:bg-slate-800 transition shadow-sm">다음 문제로 ➡️</button>
+            </div>
+        </main>
+
+        <div id="result-card" class="hidden bg-white rounded-2xl shadow-sm p-8 border border-slate-100 text-center">
+            <div class="text-5xl mb-4">🎉</div>
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">테스트가 완료되었습니다!</h2>
+            <p id="final-score" class="text-lg font-semibold text-blue-600 mb-6">최종 점수: 0 / 10</p>
+            <div id="motivational-msg" class="text-slate-600 mb-8 text-sm max-w-md mx-auto"></div>
+            <button onclick="restartQuiz()" class="bg-blue-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-blue-700 transition shadow-sm">다시 풀기 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // 3차 약점 보완 퀴즈 데이터 10문항 탑재
+        const quizData = [
+            {
+                question: "독립 협회가 추진한 의회 설립 운동(중추원 개편령)과 1907년 조직된 신민회의 정치적 지향점을 비교할 때, 두 단체의 가장 결정적인 차이점은 무엇인가요?",
+                options: [
+                    { text: "독립 협회는 황제권을 전면 부정했으나, 신민회는 고종의 강제 퇴위 반대 운동에만 집중했다.", rationale: "독립 협회는 황제권을 전면 부정한 것이 아니라 전제 군주제를 개혁하려 했고, 신민회는 고종 퇴위 이후 해외 기지 건설 등에 주력했습니다.", isCorrect: false },
+                    { text: "독립 협회는 입헌 군주제를 지향한 반면, 신민회는 우리 역사상 최초로 공화정 수립을 목표로 삼았다.", rationale: "독립 협회는 국왕의 존재를 인정하는 입헌 군주제를 추구했으나, 비밀결사인 신민회는 주권이 국민에게 있는 공화정 국가 건설을 뚜렷한 목표로 제시했습니다.", isCorrect: true },
+                    { text: "독립 협회는 비밀결사 형태로 활동했으나, 신민회는 만민 공동회 등 공개적인 대중 집회를 주도했다.", rationale: "독립 협회가 공개적인 대중 집회를 주도한 단체이며, 신민회는 일제의 탄압을 피해 비밀리에 조직된 결사입니다.", isCorrect: false },
+                    { text: "독립 협회는 외세의 배격을 강조했으나, 신민회는 일본과의 타협을 통한 실력 양성을 주장했다.", rationale: "신민회는 국권 회복을 위한 해외 무장 독립운동 기지 건설을 추진하는 등 일제와 타협하지 않는 강력한 항일 노선을 걸었습니다.", isCorrect: false }
+                ],
+                hint: "국가 체제를 바라보는 시각에서 국왕(황제)의 존재를 인정하느냐, 혹은 국민 중심의 완전한 민주 공화정을 추구하느냐의 차이입니다."
+            },
+            {
+                question: "1899년 선포된 '대한국 국제'에 대한 설명 중, 당시 근대적 개혁을 요구하던 지식인과 민중의 요구를 반영하지 못했다는 비판을 받는 가장 큰 이유는 무엇인가요?",
+                options: [
+                    { text: "청나라와의 종속 관계를 완전히 청산하지 못하고 사대주의적 태도를 고수했기 때문이다.", rationale: "대한국 국제 제1조에는 자주독립 제국임을 명시하여 청이나 주변 외세로부터의 완전한 독립을 천명했습니다.", isCorrect: false },
+                    { text: "국민의 기본권과 자유권에 대한 규정이 없고, 모든 군사·입법·행정 권력을 황제 1인에게만 집중시켰기 때문이다.", rationale: "대한국 국제는 근대적 형태를 띠었으나 참정권이나 민권에 대한 조항이 전혀 없으며, 황제의 절대 권한을 규정하는 데 치중한 한계가 있습니다.", isCorrect: true },
+                    { text: "러시아 공사관에 머물고 있던 고종 황제의 안위를 지키기 위해 급조된 문서였기 때문이다.", rationale: "대한국 국제는 아관파천(1896)을 끝내고 경운궁으로 환궁하여 대한 제국을 선포한 이후인 1899년에 제정되었습니다.", isCorrect: false },
+                    { text: "개화파 관료들이 주도한 중추원 중심의 의회 정치를 전면 수용했기 때문이다.", rationale: "대한국 국제는 의회 설립 운동이나 독립 협회의 관민 공동회 요구를 탄압한 이후 황제 중심의 전제 정치 체제를 굳히기 위해 선포되었습니다.", isCorrect: false }
+                ],
+                hint: "민권 신장이나 권력 분립이 아닌, '황제권의 무한함'을 강조한 대목에 주목해 보세요."
+            },
+            {
+                question: "1907년 군대 해산 이후 의병 세력이 연합하여 결성한 '13도 창의군'의 서울 진공 작전이 실패로 돌아가게 된 직접적인 내부 계기는 무엇인가요?",
+                options: [
+                    { text: "평민 출신 의병장 신돌석이 총대장 자리를 거부하고 독자 노선을 걸었기 때문이다.", rationale: "13도 창의군의 지도부는 철저히 유생 중심의 의병장들로만 구성되어 평민 출신 의병장은 배제되었습니다.", isCorrect: false },
+                    { text: "러시아군의 갑작스러운 배신으로 약속된 무기 지원을 받지 못했기 때문이다.", rationale: "13도 창의군의 서울 진공 작전은 해외 군사 세력의 직접적인 연대나 지원을 전제로 계획된 것이 아닙니다.", isCorrect: false },
+                    { text: "총대장 이인영이 부친상을 당하자 효(孝)를 다하기 위해 고향으로 돌아가며 지도부가 흔들렸기 때문이다.", rationale: "총대장 이인영이 문경으로 귀향하면서 군령 체계에 공백이 생겼고, 이후 군사장 허위 등이 작전을 전개했으나 일제의 방어로 실패했습니다.", isCorrect: true },
+                    { text: "고종 황제가 의병 해산령을 내려 대다수 군인이 무기를 반납했기 때문이다.", rationale: "고종 황제는 이미 1907년 헤이그 특사 사건의 여파로 강제 퇴위당해 의병에 해산령을 내릴 수 있는 상황이 아니었습니다.", isCorrect: false }
+                ],
+                hint: "전통 유학 사상을 가진 의병장들에게 '나라에 대한 충(忠)' 못지않게 중요했던 부모에 대한 도리가 작전 중에 발현된 사건입니다."
+            },
+            {
+                question: "1894년 동학 농민 운동의 전개 과정 중, 전주 화약 체결 이후 집강소를 통해 개혁을 추진하던 농민군이 다시 무장 봉기(제2차 봉기)를 일으키게 된 결정적인 배경은 무엇인가요?",
+                options: [
+                    { text: "청나라 상인들이 내지 통상권을 확보하여 농촌 경제를 황폐화했기 때문이다.", rationale: "청 상인의 내지 통상권은 1882년 임오군란 직후 장정 체결로 확보된 것이며, 2차 봉기의 직접적 계기는 아닙니다.", isCorrect: false },
+                    { text: "일본군이 경복궁을 강제로 점령하고 내정 간섭을 본격화했기 때문이다.", rationale: "농민군의 요구로 청·일 양국 군대의 철수를 요청했으나 일본군이 도리어 경복궁을 습격하자, 농민군은 외세를 몰아내기 위해 대대적으로 재봉기했습니다.", isCorrect: true },
+                    { text: "정부가 약속한 전라도 일대의 집강소 설치를 전면 불허하고 군대를 파견했기 때문이다.", rationale: "전주 화약 이후 정부는 집강소 설치를 묵인했으며 자체적으로 교정청을 두어 개혁을 시도하기도 했습니다.", isCorrect: false },
+                    { text: "남접의 지도자 전봉준과 북접의 지도자 손병희 사이의 극심한 권력 투쟁 때문이었다.", rationale: "제2차 봉기 때는 민중 세력인 남접뿐만 아니라 교조 신원 위주의 종교 세력이던 북접(손병희)까지 합류하여 일제에 맞서 단결했습니다.", isCorrect: false }
+                ],
+                hint: "농민군의 제1차 봉기가 '반봉건(지배층 수탈 규탄)' 중심이었다면, 제2차 봉기는 '반외세(외세 침략 격퇴)'의 성격이 짙어진 이유를 생각해보세요."
+            },
+            {
+                question: "일제가 대한 제국의 사법권과 교도소 행정 사무를 완전히 박탈하여 주권을 심각하게 침해한, 1909년에 체결된 조약(각서)의 명칭은 무엇인가요?",
+                options: [
+                    { text: "기유각서", rationale: "1909년 체결된 기유각서에 의해 대한 제국의 재판소와 사법 권한이 일제 통감부로 넘어가 사법 주권이 강탈당했습니다.", isCorrect: true },
+                    { text: "한일 협정서", rationale: "한일 협정서는 대개 제1차 한일 협약(1904) 등을 부르는 칭호로 고문 정치를 규정한 문서입니다.", isCorrect: false },
+                    { text: "정미 7조약", rationale: "1907년의 정미 7조약은 일본인 차관 임명과 군대 해산 등을 주요 골자로 합니다.", isCorrect: false },
+                    { text: "한일 신협약", rationale: "한일 신협약은 정미 7조약의 또 다른 이름으로 사법권 박탈보다 앞선 시기에 체결되었습니다.", isCorrect: false }
+                ],
+                hint: "1909년의 기해년(己亥年)에 작성된 문서로, 국권 피탈(1910) 직전에 단행된 일제의 내정 장악 조치입니다."
+            },
+            {
+                question: "1882년 조청상민수륙무역장정이 체결된 이후, 조선의 수도인 한성(서울) 한복판까지 진출한 외국 상인들의 상권 침탈에 맞서 시전 상인들이 주도하여 전개한 경제적 구국 운동은 무엇인가요?",
+                options: [
+                    { text: "방곡령 실시 서명 운동", rationale: "방곡령은 곡물의 해외 유출을 막기 위해 함경도나 황해도 등지의 지방관들이 내린 행정 조치입니다.", isCorrect: false },
+                    { text: "토산품 애용 및 물산 장려 운동", rationale: "물산 장려 운동은 개항기가 아니라 일제 강점기인 1920년대 조만식 등을 중심으로 전개된 민족 실력 양성 운동입니다.", isCorrect: false },
+                    { text: "철시(상점 철수) 투쟁과 황국 중앙 총상회 조직", rationale: "시전 상인들은 한성 상권을 수호하기 위해 동맹 철시를 감행했고, 1898년 황국 중앙 총상회를 조직하여 이권 침탈 반대 운동을 폈습니다.", isCorrect: true },
+                    { text: "국채 보상 기성회 설립을 통한 모금 운동", rationale: "국채 보상 운동은 상인들의 상권 수호 목적이라기보다 나라의 외채를 갚기 위해 대구의 서상돈 등 지사들이 시작한 거국적 운동입니다.", isCorrect: false }
+                ],
+                hint: "종로 일대의 가가미(가게) 문을 일제히 닫아 정부와 외세에 시위하고, 자신들의 이권을 지킬 연합 단체를 만들었습니다."
+            },
+            {
+                question: "개항기 교육 구국 운동의 일환으로 세워진 근대식 학교 중, 민간 지사들과 주민들이 자발적으로 뜻을 모아 설립한 우리나라 최초의 근대식 사립 학교는 무엇인가요?",
+                options: [
+                    { text: "육영공원", rationale: "육영공원은 1886년 정부가 상류층 자제를 대상으로 설립한 관립 근대 교육 기관입니다.", isCorrect: false },
+                    { text: "원산학사", rationale: "1883년 함경도 원산 주민들과 덕원부사 정현석 등이 힘을 합쳐 설립한 원산학사는 최초의 근대식 사립 학교로 무술과 학문을 가르쳤습니다.", isCorrect: true },
+                    { text: "배재학당", rationale: "배재학당은 개신교 선교사인 아펜젤러가 설립한 미션계 사립 학교입니다.", isCorrect: false },
+                    { text: "한성사범학교", rationale: "한성사범학교는 2차 갑오개혁기 고종의 교육입국조서 발표 이후 교사를 양성하기 위해 세운 관립 학교입니다.", isCorrect: false }
+                ],
+                hint: "개항장 중 한 곳이었던 함경도의 요충지에 세워졌으며, 주민들의 기부금과 지방관의 협력으로 건립되었습니다."
+            },
+            {
+                question: "1894년 추진된 제1차 갑오개혁의 내용 중, 수백 년간 지속되어 온 신분제를 타파하고 인간 존엄성의 기반을 닦은 핵심 조치는 무엇인가요?",
+                options: [
+                    { text: "지계 발급을 통한 토지 소유권 문서의 법제화", rationale: "지계 발급은 갑오개혁이 아닌 대한 제국 시기 광무개혁의 성과입니다.", isCorrect: false },
+                    { text: "공사 노비 제도의 전면 폐지 및 인신매매 금지", rationale: "군국기무처가 주도한 제1차 갑오개혁에서는 공노비와 사노비 제도를 전면 폐지하여 법적인 신분 평등을 실현했습니다.", isCorrect: true },
+                    { text: "의정부와 삼군부의 권한 분리를 통한 군사력 증강", rationale: "제1차 갑오개혁에서는 왕실 사무(궁내부)와 국정 사무(의정부)를 분리하는 데 집중했습니다.", isCorrect: false },
+                    { text: "재판소를 설치하여 사법권을 행정권으로부터 독립시킨 조치", rationale: "지방관의 사법권을 박탈하고 재판소를 처음 둔 것은 제2차 갑오개혁(1894~1895)의 내용입니다.", isCorrect: false }
+                ],
+                hint: "갑신정변의 신분 폐지 주장과 동학 농민 운동의 노비문서 소각 요구가 마침내 정부 개혁안에 반영된 결과입니다."
+            },
+            {
+                question: "1907년 대구에서 시작되어 전국으로 확산된 '국채 보상 운동'에 대한 설명으로 옳지 않은 것을 고르시오.",
+                options: [
+                    { text: "서상돈, 김광제 등이 발기인이 되어 담배를 끊어 돈을 모으자는 취지로 시작되었다.", rationale: "단연(斷煙, 담배 끊기) 동맹을 결성하고 가락지와 비녀를 모으는 등 전 국민적인 경제 자립 운동으로 확산되었습니다.", isCorrect: false },
+                    { text: "대한매일신보, 황성신문 등 당시 언론기관들이 모금 활동을 적극적으로 홍보하고 지원했다.", rationale: "언론사들이 의연금을 취합하고 논설을 통해 참가를 독려하여 운동의 확산에 기여했습니다.", isCorrect: false },
+                    { text: "일제 통감부는 국채보상기성회 간부인 양기탁에게 총독부 보조금을 횡령했다는 누명을 씌워 운동을 탄압했다.", rationale: "통감부는 양기탁에게 의연금 횡령이라는 거짓 혐의를 씌워 구속하는 등 교묘한 방법으로 운동을 좌절시켰습니다.", isCorrect: false },
+                    { text: "러시아가 절영도 조차를 요구하자 이를 저지하기 위한 목적으로 일어났다.", rationale: "러시아의 절영도 조차 요구를 저지한 것은 1898년 독립 협회의 만민 공동회 성과이며, 국채 보상 운동은 일제가 강요한 차관 1,300만 원을 갚기 위한 운동이었습니다.", isCorrect: true }
+                ],
+                hint: "문제에서 '옳지 않은 것'을 고르는 것입니다. 러시아의 이권 침탈을 막아낸 단체의 활동과 시기를 구별해 보세요."
+            },
+            {
+                question: "1907년 안창호, 양기탁 등이 조직한 비밀결사 신민회가 국권 회복을 위한 장기적 독립 투쟁을 준비하고자 남만주 삼원보에 설립하여, 향후 수많은 독립군 장교를 배출하게 되는 교육 기관의 전신은 무엇인가요?",
+                options: [
+                    { text: "대성학교", rationale: "대성학교는 신민회 평양 지부의 안창호가 국내에 세운 민족 교육 학교입니다.", isCorrect: false },
+                    { text: "오산학교", rationale: "오산학교는 신민회 회원인 이승훈이 정주에 세운 국내 사립 학교입니다.", isCorrect: false },
+                    { text: "신흥무관학교 (신흥강습소)", rationale: "신민회는 이회영, 이시영 형제 등의 전재산 기부와 헌신을 바탕으로 서간도 삼원보에 신흥강습소(이후 신흥무관학교)를 설립하여 무장 투쟁의 요람을 만들었습니다.", isCorrect: true },
+                    { text: "서전서숙", rationale: "서전서숙은 이상설 등이 북간도 용정에 세운 민족 학교로 신민회의 삼원보 기지 개척과는 직접적 계보가 다릅니다.", isCorrect: false }
+                ],
+                hint: "처음에는 일제의 눈을 피하기 위해 '강습소'라는 이름으로 출발했으나, 훗날 청산리 대첩 등의 주역이 되는 독립군을 길러낸 무관학교입니다."
+            }
+        ];
+
+        let currentIdx = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        // DOM 요소들
+        const quizCard = document.getElementById('quiz-card');
+        const resultCard = document.getElementById('result-card');
+        const qNum = document.getElementById('question-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const hintBox = document.getElementById('hint-box');
+        const hintBtn = document.getElementById('hint-btn');
+        const feedbackArea = document.getElementById('feedback-area');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const scoreText = document.getElementById('score-text');
+
+        // 퀴즈 초기화 및 렌더링
+        function loadQuestion() {
+            isAnswered = false;
+            hintBox.classList.add('hidden');
+            hintBtn.innerText = "💡 힌트 보기";
+            feedbackArea.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+
+            const q = quizData[currentIdx];
+            qNum.innerText = `Question ${currentIdx + 1} / ${quizData.length}`;
+            qText.innerText = q.question;
+            hintBox.innerText = q.hint;
+
+            // 진행 상태 바 업데이트
+            const pct = ((currentIdx) / quizData.length) * 100;
+            progressBar.style.width = `${pct}%`;
+            progressText.innerText = `진행도: ${currentIdx} / ${quizData.length}`;
+            scoreText.innerText = `맞힌 개수: ${score}`;
+
+            // 보기 렌더링
+            optionsContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition font-medium text-sm flex items-start gap-3 bg-white";
+                btn.innerHTML = `<span class="inline-flex items-center justify-center bg-slate-100 rounded-md w-5 h-5 text-xs text-slate-500 font-bold shrink-0">${idx+1}</span> <span>${opt.text}</span>`;
+                btn.onclick = () => selectOption(btn, opt, q.options);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // 보기 선택 이벤트
+        function selectOption(selectedBtn, selectedOpt, allOpts) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const buttons = optionsContainer.querySelectorAll('button');
+            
+            // 모든 보기 잠금 및 정답 유무 표시
+            buttons.forEach((btn, i) => {
+                btn.disabled = true;
+                const opt = allOpts[i];
+                
+                if (opt.isCorrect) {
+                    btn.className = "w-full text-left p-4 rounded-xl border border-green-200 bg-green-50 text-green-900 transition font-medium text-sm flex items-start gap-3";
+                    btn.querySelector('span').className = "inline-flex items-center justify-center bg-green-200 rounded-md w-5 h-5 text-xs text-green-700 font-bold shrink-0";
+                } else if (btn === selectedBtn && !opt.isCorrect) {
+                    btn.className = "w-full text-left p-4 rounded-xl border border-red-200 bg-red-50 text-red-900 transition font-medium text-sm flex items-start gap-3";
+                    btn.querySelector('span').className = "inline-flex items-center justify-center bg-red-200 rounded-md w-5 h-5 text-xs text-red-700 font-bold shrink-0";
+                } else {
+                    btn.className = "w-full text-left p-4 rounded-xl border border-slate-100 bg-slate-50/50 text-slate-400 transition font-medium text-sm flex items-start gap-3";
+                }
+            });
+
+            // 점수 계산 및 피드백 출력
+            if (selectedOpt.isCorrect) {
+                score++;
+                feedbackArea.className = "mb-4 p-4 rounded-xl text-sm leading-relaxed bg-green-50 text-green-800 border border-green-100";
+                feedbackArea.innerHTML = `<strong>✨ 정답입니다!</strong><br><p class="mt-1">${selectedOpt.rationale}</p>`;
+            } else {
+                feedbackArea.className = "mb-4 p-4 rounded-xl text-sm leading-relaxed bg-red-50 text-red-800 border border-red-100";
+                feedbackArea.innerHTML = `<strong>😢 아쉬워요!</strong><br><p class="mt-1">${selectedOpt.rationale}</p>`;
+            }
+
+            scoreText.innerText = `맞힌 개수: ${score}`;
+            feedbackArea.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+        }
+
+        // 힌트 토글
+        function toggleHint() {
+            if (hintBox.classList.contains('hidden')) {
+                hintBox.classList.remove('hidden');
+                hintBtn.innerText = "닫기";
+            } else {
+                hintBox.classList.add('hidden');
+                hintBtn.innerText = "💡 힌트 보기";
+            }
+        }
+
+        // 다음 문제로 이동
+        function nextQuestion() {
+            currentIdx++;
+            if (currentIdx < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // 결과창 표시
+        function showResult() {
+            quizCard.classList.add('hidden');
+            resultCard.classList.remove('hidden');
+            
+            progressBar.style.width = `100%`;
+            progressText.innerText = `진행도 완료!`;
+            
+            document.getElementById('final-score').innerText = `최종 점수: ${score} / ${quizData.length}`;
+            
+            let msg = "";
+            if (score === quizData.length) msg = "완벽합니다! 100점 영광의 주인공은 바로 당신! 시험 치러 가셔도 되겠어요. 💯";
+            else if (score >= 7) msg = "대단해요! 취약 개념이 거의 다 보완되었습니다. 틀린 해설만 한 번 더 읽어보면 완벽한 1등급입니다. 🔥";
+            else msg = "수고하셨습니다! 틀린 문제의 '해설(Rationale)'을 꼼꼼히 짚어보시면 본 시험에서 엄청난 힘이 될 거예요. 다시 한 번 도전해 볼까요? 💪";
+            
+            document.getElementById('motivational-msg').innerText = msg;
+        }
+
+        // 재시작
+        function restartQuiz() {
+            currentIdx = 0;
+            score = 0;
+            resultCard.classList.add('hidden');
+            quizCard.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        // 첫 로드
+        window.onload = loadQuestion;
+    </script>
+</body>
+</html>
+
+
+  <script>
+    
+  </script>
+</body>
+</html>
